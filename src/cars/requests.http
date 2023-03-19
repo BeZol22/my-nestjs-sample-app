@@ -1,0 +1,2 @@
+### List all cars
+GET http://localhost:3000/cars
