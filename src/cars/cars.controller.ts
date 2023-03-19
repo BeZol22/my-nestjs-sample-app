@@ -17,6 +17,8 @@ export class CarsController {
 
   @Post()
   create(@Body() createCarDto: CreateCarDto) {
+    // console.log(createCarDto);
+
     return this.carsService.create(createCarDto);
   }
 

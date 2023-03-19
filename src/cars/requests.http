@@ -1,2 +1,13 @@
 ### List all cars
 GET http://localhost:3000/cars
+
+### Create a new car
+POST http://localhost:3000/cars
+Content-Type: application/json
+
+{
+    "content": "My new car"
+}
+
+### Get a particular car
+GET http://localhost:3000/cars/1
