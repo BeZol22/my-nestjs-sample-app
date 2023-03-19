@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -24,7 +25,10 @@ export class UsersController {
   }
 
   @Get()
-  async findAll(): Promise<User[]> {
+  async findAll(@Query('email') userEmail?: string): Promise<User[] | null> {
+    if (userEmail) {
+      return await this.usersService.find(userEmail);
+    }
     return await this.usersService.findAll();
   }
 

@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 
@@ -37,7 +37,7 @@ export class UsersService {
   }
 
   async find(email: string): Promise<User[]> {
-    return this.repo.find({ where: { email } });
+    return this.repo.find({ where: { email: Like(`%${email}%`) } });
   }
 
   async update(id: number, attrs: Partial<User>): Promise<User> {

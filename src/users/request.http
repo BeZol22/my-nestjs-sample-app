@@ -3,7 +3,7 @@ POST http://localhost:3000/auth/signup
 content-type: application/json
 
 {
-  "email": "a@bb.com",
+  "email": "b@bb.com",
   "password": "12345"
 }
 
@@ -12,7 +12,7 @@ POST http://localhost:3000/auth/signin
 content-type: application/json
 
 {
-  "email": "a@bb.com",
+  "email": "b@bb.com",
   "password": "12345"
 }
 
@@ -29,7 +29,7 @@ POST http://localhost:3000/auth/signout
 GET http://localhost:3000/auth/4
 
 ### Find all users with a given email
-GET http://localhost:3000/auth?email=a@bb.com
+GET http://localhost:3000/auth?email=b@bb.com
 
 ### Delete a user given id
 DELETE http://localhost:3000/auth/3
