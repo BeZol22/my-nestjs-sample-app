@@ -8,6 +8,7 @@ import {
   Delete,
   BadRequestException,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -40,7 +41,13 @@ export class UsersController {
       throw new BadRequestException('ID must be a number');
     }
 
-    return await this.usersService.findOne(parsedId);
+    const userById = await this.usersService.findOne(parsedId);
+
+    if (!userById) {
+      throw new NotFoundException('User not found');
+    }
+
+    return userById;
   }
 
   @Patch('/:id')

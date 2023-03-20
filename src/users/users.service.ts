@@ -28,9 +28,9 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<User | null> {
-    if (typeof id !== 'number') {
-      throw new BadRequestException('ID must be a number');
-    }
+    // if (typeof id !== 'number') {
+    //   throw new BadRequestException('ID must be a number');
+    // }
 
     const user = await this.repo.findOneBy({ id });
     return user || null;
