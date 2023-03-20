@@ -19,10 +19,10 @@ import { User } from './entities/user.entity';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @Post('/signup')
+  @Post('/register')
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    const { email, password } = createUserDto;
-    return await this.usersService.create(email, password);
+    const { firstName, lastName, email, password } = createUserDto;
+    return await this.usersService.create(firstName, lastName, email, password);
   }
 
   @Get()

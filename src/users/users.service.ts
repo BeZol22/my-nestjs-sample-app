@@ -12,14 +12,19 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(@InjectRepository(User) private repo: Repository<User>) {}
 
-  async create(email: string, password: string): Promise<User> {
+  async create(
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string,
+  ): Promise<User> {
     const existingUser = await this.repo.findOne({ where: { email } });
 
     if (existingUser) {
       throw new ConflictException('User with email already exists');
     }
 
-    const user = this.repo.create({ email, password });
+    const user = this.repo.create({ firstName, lastName, email, password });
     return this.repo.save(user);
   }
 
