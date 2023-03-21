@@ -20,9 +20,12 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post('/register')
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    const { firstName, lastName, email, password } = createUserDto;
-    return await this.usersService.create(firstName, lastName, email, password);
+  async create(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<{ message: string }> {
+    const user = await this.usersService.create(createUserDto);
+
+    return { message: `Successfully registered with email: ${user.email}` };
   }
 
   @Get()

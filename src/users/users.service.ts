@@ -1,31 +1,46 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(User) private repo: Repository<User>) {}
 
-  async create(
-    firstName: string,
-    lastName: string,
-    email: string,
-    password: string,
-  ): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const { firstName, lastName, email, password } = createUserDto;
+
     const existingUser = await this.repo.findOne({ where: { email } });
 
     if (existingUser) {
-      throw new ConflictException('User with email already exists');
+      throw new ConflictException(`User with email "${email}" already exists`);
     }
 
     const user = this.repo.create({ firstName, lastName, email, password });
-    return this.repo.save(user);
+
+    try {
+      return await this.repo.save(user);
+    } catch (error) {
+      if (error.code === '23505') {
+        // '23505' is the code for unique constraint violation in Postgres
+        throw new ConflictException(
+          `User with email "${email}" already exists`,
+        );
+      } else {
+        throw new HttpException(
+          'Failed to save user to database',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
   }
 
   async findAll(): Promise<User[]> {
