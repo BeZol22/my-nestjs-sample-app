@@ -21,7 +21,7 @@ export class UsersService {
     const existingUser = await this.repo.findOne({ where: { email } });
 
     if (existingUser) {
-      throw new ConflictException(`User with email "${email}" already exists`);
+      throw new ConflictException(`User with email "${email}" already exists.`);
     }
 
     const user = this.repo.create({ firstName, lastName, email, password });
@@ -32,11 +32,11 @@ export class UsersService {
       if (error.code === '23505') {
         // '23505' is the code for unique constraint violation in Postgres
         throw new ConflictException(
-          `User with email "${email}" already exists`,
+          `User with email "${email}" already exists.`,
         );
       } else {
         throw new HttpException(
-          'Failed to save user to database',
+          'Failed to save user to database.',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -64,7 +64,7 @@ export class UsersService {
     const existingUser = await this.findOne(id);
 
     if (!existingUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found.');
     }
 
     const updatedUser = {
@@ -79,7 +79,7 @@ export class UsersService {
     const userToDelete = await this.findOne(id);
 
     if (!userToDelete) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found.');
     }
 
     const deleteResult = await this.repo.delete(userToDelete.id);

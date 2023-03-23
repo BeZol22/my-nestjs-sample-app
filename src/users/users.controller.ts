@@ -25,7 +25,7 @@ export class UsersController {
   ): Promise<{ message: string }> {
     const user = await this.usersService.create(createUserDto);
 
-    return { message: `Successfully registered with email: ${user.email}` };
+    return { message: `Successfully registered with email: ${user.email}.` };
   }
 
   @Get()
@@ -41,13 +41,13 @@ export class UsersController {
     const parsedId = +id;
 
     if (isNaN(parsedId)) {
-      throw new BadRequestException('ID must be a number');
+      throw new BadRequestException('ID must be a number.');
     }
 
     const userById = await this.usersService.findOne(parsedId);
 
     if (!userById) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found.');
     }
 
     return userById;
@@ -61,7 +61,7 @@ export class UsersController {
     const parsedId = +id;
 
     if (isNaN(parsedId)) {
-      throw new BadRequestException('ID must be a number');
+      throw new BadRequestException('ID must be a number.');
     }
 
     return await this.usersService.update(parsedId, updateUserDto);
@@ -72,7 +72,7 @@ export class UsersController {
     const parsedId = +id;
 
     if (isNaN(parsedId)) {
-      throw new BadRequestException('ID must be a number');
+      throw new BadRequestException('ID must be a number.');
     }
 
     return await this.usersService.remove(parsedId);
