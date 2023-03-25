@@ -12,4 +12,10 @@ export class CreateUserDto {
 
   @IsString()
   password: string;
+
+  token: string;
+
+  tokenExpiration: Date;
+
+  isConfirmed: boolean;
 }

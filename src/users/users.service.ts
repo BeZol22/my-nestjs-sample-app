@@ -13,9 +13,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private readonly repo: Repository<User>,
+  ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto, token: string): Promise<User> {
     const { firstName, lastName, email, password } = createUserDto;
 
     const existingUser = await this.repo.findOne({ where: { email } });
@@ -24,11 +26,20 @@ export class UsersService {
       throw new ConflictException(`User with email "${email}" already exists.`);
     }
 
-    const user = this.repo.create({ firstName, lastName, email, password });
+    const user = this.repo.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      token: token,
+      tokenExpiration: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
+      isConfirmed: false,
+    });
 
     try {
       return await this.repo.save(user);
     } catch (error) {
+      console.error(error);
       if (error.code === '23505') {
         // '23505' is the code for unique constraint violation in Postgres
         throw new ConflictException(
@@ -41,6 +52,10 @@ export class UsersService {
         );
       }
     }
+  }
+
+  async findByToken(token: string): Promise<User> {
+    return this.repo.findOneBy({ token });
   }
 
   async findAll(): Promise<User[]> {

@@ -24,6 +24,15 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  token: string;
+
+  @Column({ nullable: true })
+  tokenExpiration: Date;
+
+  @Column()
+  isConfirmed: boolean;
+
   @AfterInsert()
   logInsert() {
     console.log('Inserted User with id', this.id);

@@ -19,15 +19,46 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Controller('auth')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly mailerService: MailerService,
+  ) {}
 
   @Post('/register')
   async create(
     @Body() createUserDto: CreateUserDto,
   ): Promise<{ message: string }> {
-    const user = await this.usersService.create(createUserDto);
+    const token = uuidv4();
+    const user = await this.usersService.create(createUserDto, token);
 
-    return { message: `Successfully registered with email: ${user.email}.` };
+    // send confirmation email
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Confirm your registration',
+      template: 'confirm-registration',
+      context: {
+        firstName: user.firstName,
+        confirmLink: `${process.env.FRONTEND_URL}/confirm-registration?token=${token}`,
+      },
+    });
+
+    return {
+      message: `Registration successful. Please check your email for confirmation instructions.`,
+    };
+  }
+
+  @Post('confirm-registration')
+  async confirmRegistration(@Body() data: any) {
+    const user = await this.usersService.findByToken(data.token);
+
+    if (!user || user.tokenExpiration < new Date()) {
+      throw new Error('Invalid or expired confirmation link.');
+    }
+
+    user.isConfirmed = true;
+    await this.usersService.update(user.id, { isConfirmed: true });
+
+    return { message: 'Registration confirmed. You may now log in.' };
   }
 
   @Get()
