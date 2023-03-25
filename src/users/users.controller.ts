@@ -38,7 +38,7 @@ export class UsersController {
       template: 'confirm-registration',
       context: {
         firstName: user.firstName,
-        confirmLink: `${process.env.FRONTEND_URL}/confirm-registration?token=${token}`,
+        confirmLink: `${process.env.FRONTEND_URL}/auth/confirm-registration?token=${token}`,
       },
     });
 
@@ -47,8 +47,10 @@ export class UsersController {
     };
   }
 
-  @Post('confirm-registration')
-  async confirmRegistration(@Body() data: any) {
+  @Post('/confirm-registration')
+  async confirmRegistration(@Body() data: { token: string }) {
+    console.log('DATA RECEIVED FOR CONFIRM_REGISTRATION: ', data.token);
+
     const user = await this.usersService.findByToken(data.token);
 
     if (!user || user.tokenExpiration < new Date()) {
@@ -57,6 +59,7 @@ export class UsersController {
 
     user.isConfirmed = true;
     await this.usersService.update(user.id, { isConfirmed: true });
+    // await this.usersService.update(user);
 
     return { message: 'Registration confirmed. You may now log in.' };
   }
