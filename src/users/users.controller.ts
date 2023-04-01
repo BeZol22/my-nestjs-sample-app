@@ -54,7 +54,8 @@ export class UsersController {
     const user = await this.usersService.findByToken(data.token);
 
     if (!user || user.tokenExpiration < new Date()) {
-      throw new Error('Invalid or expired confirmation link.');
+      // throw new Error('Invalid or expired confirmation link.');
+      return { message: 'Invalid or expired confirmation link.' };
     }
 
     user.isConfirmed = true;
