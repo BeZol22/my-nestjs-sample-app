@@ -10,6 +10,7 @@ import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -26,11 +27,14 @@ export class UsersService {
       throw new ConflictException(`User with email "${email}" already exists.`);
     }
 
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
     const user = this.repo.create({
       firstName,
       lastName,
       email,
-      password,
+      password: passwordHash,
       token: token,
       tokenExpiration: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
       isConfirmed: false,
