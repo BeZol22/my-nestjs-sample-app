@@ -49,13 +49,15 @@ export class UsersController {
 
   @Post('/confirm-registration')
   async confirmRegistration(@Body() data: { token: string }) {
-    console.log('DATA RECEIVED FOR CONFIRM_REGISTRATION: ', data.token);
-
     const user = await this.usersService.findByToken(data.token);
 
     if (!user || user.tokenExpiration < new Date()) {
       // throw new Error('Invalid or expired confirmation link.');
       return { message: 'Invalid or expired confirmation link.' };
+    }
+
+    if (user && user.isConfirmed === true) {
+      return { message: 'Registration already confirmed. Please log in.' };
     }
 
     user.isConfirmed = true;

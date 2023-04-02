@@ -55,8 +55,6 @@ export class UsersService {
   }
 
   async findByToken(token: string): Promise<User> {
-    console.log('HELLO FINBYTOKEN SERVICE: ', token);
-
     return this.repo.findOneBy({ token });
   }
 
