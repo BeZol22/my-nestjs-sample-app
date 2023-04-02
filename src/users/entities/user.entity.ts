@@ -5,6 +5,7 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
+  Check,
 } from 'typeorm';
 
 @Entity()
@@ -32,6 +33,10 @@ export class User {
 
   @Column()
   isConfirmed: boolean;
+
+  @Column()
+  @Check(`role IN ('user', 'sponsor_user', 'admin')`)
+  role: string = 'user';
 
   @AfterInsert()
   logInsert() {

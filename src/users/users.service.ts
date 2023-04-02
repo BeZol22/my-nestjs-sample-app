@@ -5,18 +5,51 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { Like, Repository } from 'typeorm';
+import { Like, QueryFailedError, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class UsersService {
+  private readonly jwtSecret = process.env.JWT_SECRET;
+
   constructor(
     @InjectRepository(User) private readonly repo: Repository<User>,
   ) {}
+
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ jwtToken: string; role: string; message: string }> {
+    const user = await this.findByEmail(email);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password.');
+    }
+
+    const tokenPayload = {
+      email: user.email,
+      role: user.role,
+    };
+
+    const jwtToken = jwt.sign(tokenPayload, this.jwtSecret, {
+      expiresIn: '1h',
+    });
+    const successMessage: string = 'Login successful.';
+
+    return { jwtToken, role: user.role, message: successMessage };
+  }
 
   async create(createUserDto: CreateUserDto, token: string): Promise<User> {
     const { firstName, lastName, email, password } = createUserDto;
@@ -49,6 +82,26 @@ export class UsersService {
         throw new ConflictException(
           `User with email "${email}" already exists.`,
         );
+      } else if (error instanceof QueryFailedError) {
+        const constraintNameMatch = /constraint "(\w+)"/.exec(error.message);
+        const constraintName = constraintNameMatch?.[1];
+        if (constraintName) {
+          switch (constraintName) {
+            case 'CHK_0123456789':
+              throw new BadRequestException('Invalid value for field.');
+            // Add additional cases for other check constraints
+            default:
+              throw new HttpException(
+                'Failed to save user to database.',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              );
+          }
+        } else {
+          throw new HttpException(
+            'Failed to save user to database.',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
       } else {
         throw new HttpException(
           'Failed to save user to database.',
@@ -75,9 +128,13 @@ export class UsersService {
     return user || null;
   }
 
-  async find(email: string): Promise<User[]> {
-    return this.repo.find({ where: { email: Like(`%${email}%`) } });
+  async findByEmail(email: string): Promise<User> {
+    return this.repo.findOne({ where: { email } });
   }
+
+  // async find(email: string): Promise<User[]> {
+  //   return this.repo.find({ where: { email: Like(`%${email}%`) } });
+  // }
 
   async update(id: number, attrs: Partial<User>): Promise<User> {
     const existingUser = await this.findOne(id);

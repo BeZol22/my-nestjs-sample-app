@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { v4 as uuidv4 } from 'uuid';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('auth')
 export class UsersController {
@@ -23,6 +24,15 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly mailerService: MailerService,
   ) {}
+
+  @Post('/login')
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+  ): Promise<{ jwtToken: string; role: string; message: string }> {
+    const { email, password } = loginUserDto;
+
+    return await this.usersService.login(email, password);
+  }
 
   @Post('/register')
   async create(
@@ -67,13 +77,13 @@ export class UsersController {
     return { message: 'Registration confirmed. You may now log in.' };
   }
 
-  @Get()
-  async findAll(@Query('email') userEmail?: string): Promise<User[] | null> {
-    if (userEmail) {
-      return await this.usersService.find(userEmail);
-    }
-    return await this.usersService.findAll();
-  }
+  // @Get()
+  // async findAll(@Query('email') userEmail?: string): Promise<User[] | null> {
+  //   if (userEmail) {
+  //     return await this.usersService.findByEmail(userEmail);
+  //   }
+  //   return await this.usersService.findAll();
+  // }
 
   @Get('/:id')
   async findOne(@Param('id') id: string): Promise<User | null> {
