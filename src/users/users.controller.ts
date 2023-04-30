@@ -9,6 +9,7 @@ import {
   BadRequestException,
   Query,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,9 +20,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from './dto/user.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('auth')
-// @Serialize(UserDto)
+@Serialize(UserDto)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -80,8 +82,8 @@ export class UsersController {
     return { message: 'Registration confirmed. You may now log in.' };
   }
 
-  @Serialize(UserDto)
   @Get()
+  @UseGuards(AuthGuard)
   async findAll(): Promise<User[] | null> {
     return await this.usersService.findAll();
   }
@@ -94,6 +96,7 @@ export class UsersController {
   // }
 
   @Get('/:id')
+  @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string): Promise<User | null> {
     const parsedId = +id;
 
@@ -111,6 +114,7 @@ export class UsersController {
   }
 
   @Patch('/:id')
+  @UseGuards(AuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -125,6 +129,7 @@ export class UsersController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<boolean> {
     const parsedId = +id;
 

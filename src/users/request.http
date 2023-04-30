@@ -14,12 +14,14 @@ POST http://localhost:3000/auth/login
 content-type: application/json
 
 {
-  "email": "b@bb.com",
-  "password": "12345"
+  "email": "bezol.hun@gmail.com",
+  "password": "Abc123!!"
 }
 
 ### Get all users
 GET http://localhost:3000/auth
+content-type: application/json
+Authorization: Bearer xxxx.yyyy.zzzz
 
 ### Get the currently signed in user
 GET http://localhost:3000/auth/whoami
@@ -28,7 +30,7 @@ GET http://localhost:3000/auth/whoami
 POST http://localhost:3000/auth/signout
 
 ### Find a particular user with a given ID
-GET http://localhost:3000/auth/3
+GET http://localhost:3000/auth/4
 
 ### Find all users with a given email
 GET http://localhost:3000/auth?email=bezol.hun@gmail.com
