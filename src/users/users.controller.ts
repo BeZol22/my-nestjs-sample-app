@@ -17,8 +17,11 @@ import { User } from './entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { v4 as uuidv4 } from 'uuid';
 import { LoginUserDto } from './dto/login-user.dto';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { UserDto } from './dto/user.dto';
 
 @Controller('auth')
+// @Serialize(UserDto)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -77,6 +80,11 @@ export class UsersController {
     return { message: 'Registration confirmed. You may now log in.' };
   }
 
+  @Serialize(UserDto)
+  @Get()
+  async findAll(): Promise<User[] | null> {
+    return await this.usersService.findAll();
+  }
   // @Get()
   // async findAll(@Query('email') userEmail?: string): Promise<User[] | null> {
   //   if (userEmail) {

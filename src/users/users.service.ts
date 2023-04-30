@@ -13,13 +13,13 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import { JwtAuthService } from 'src/services/jwt-auth.service';
 
 @Injectable()
 export class UsersService {
-  private readonly jwtSecret = process.env.JWT_SECRET;
-
   constructor(
     @InjectRepository(User) private readonly repo: Repository<User>,
+    private readonly jwtAuthService: JwtAuthService,
   ) {}
 
   async login(
@@ -39,13 +39,12 @@ export class UsersService {
     }
 
     const tokenPayload = {
+      id: user.id,
       email: user.email,
       role: user.role,
     };
 
-    const jwtToken = jwt.sign(tokenPayload, this.jwtSecret, {
-      expiresIn: '1h',
-    });
+    const jwtToken = await this.jwtAuthService.signPayload(tokenPayload);
     const successMessage: string = 'Login successful.';
 
     return { jwtToken, role: user.role, message: successMessage };

@@ -5,6 +5,8 @@ import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { JwtAuthService } from 'src/services/jwt-auth.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -49,6 +51,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     }),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, JwtAuthService, JwtService],
 })
 export class UsersModule {}
