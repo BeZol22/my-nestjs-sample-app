@@ -23,7 +23,6 @@ import { UserDto } from './dto/user.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('auth')
-@Serialize(UserDto)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -82,6 +81,7 @@ export class UsersController {
     return { message: 'Registration confirmed. You may now log in.' };
   }
 
+  @Serialize(UserDto)
   @Get()
   @UseGuards(AuthGuard)
   async findAll(): Promise<User[] | null> {
@@ -95,6 +95,7 @@ export class UsersController {
   //   return await this.usersService.findAll();
   // }
 
+  @Serialize(UserDto)
   @Get('/:id')
   @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string): Promise<User | null> {
@@ -113,6 +114,7 @@ export class UsersController {
     return userById;
   }
 
+  // @Serialize(UserDto)
   @Patch('/:id')
   @UseGuards(AuthGuard)
   async update(

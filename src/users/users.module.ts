@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
@@ -7,6 +7,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { JwtAuthService } from 'src/services/jwt-auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { CurrentUserMiddleware } from './middlewares/current-user.middleware';
 
 @Module({
   imports: [
@@ -53,4 +54,11 @@ import { JwtService } from '@nestjs/jwt';
   controllers: [UsersController],
   providers: [UsersService, JwtAuthService, JwtService],
 })
-export class UsersModule {}
+export class UsersModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(CurrentUserMiddleware)
+      .exclude('/auth/register', '/auth/login')
+      .forRoutes('*');
+  }
+}
